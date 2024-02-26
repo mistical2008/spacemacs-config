@@ -204,7 +204,7 @@ This function should only modify configuration layer settings."
 
      ;; Configuration: https://github.com/seagle0128/doom-modeline#customize
      (spacemacs-modeline :variables
-                         doom-modeline-height 16
+                         doom-modeline-height 12
                          doom-modeline-bar-width 0                  ; size of bar icon at start of modeline
                          doom-modeline-buffer-state-icon t          ; disk icon for unsaved changes (default)
                          doom-modeline-major-mode-color-icon t      ; color icon of major mode
@@ -282,6 +282,7 @@ This function should only modify configuration layer settings."
                                       all-the-icons
                                       telega
                                       ivy-posframe
+                                      solaire-mode
                                       (evil-surround
                                        :location
                                        (recipe :fetcher github
@@ -420,7 +421,9 @@ It should only modify the values of Spacemacs settings."
    ;; pair of numbers, e.g. `(recents-by-project . (7 .  5))', where the first
    ;; number is the project limit and the second the limit on the recent files
    ;; within a project.
-   dotspacemacs-startup-lists '((recents . 5)
+   dotspacemacs-startup-lists '((agenda . 3)
+                                (todos . 5)
+                                (recents-by-project . (5 . 5))
                                 (projects . 7))
 
    ;; True if the home buffer should respond to resize events. (default t)
@@ -470,7 +473,8 @@ It should only modify the values of Spacemacs settings."
    ;; refer to the DOCUMENTATION.org for more info on how to create your own
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
-   dotspacemacs-mode-line-theme '(doom)
+   ;; dotspacemacs-mode-line-theme '(vanilla :separator none :separator-scale 1.5)
+   dotspacemacs-mode-line-theme '(spacemacs)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)

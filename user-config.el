@@ -19,12 +19,22 @@
 
 (setq-default telega-server-libs-prefix "/usr/lib")
 
+;; Ivy extensions
 (with-eval-after-load 'ivy
   (setq ivy-posframe-display-functions-alist
         '((counsel-M-x     . ivy-posframe-display-at-frame-center)))
   (setq ivy-posframe-parameters '((left-fringe . 8)
                                   (right-fringe . 8)))
   (ivy-posframe-mode 1))
+
+;; Solaire-mode setup
+(with-eval-after-load 'solaire-mode
+  (push '(treemacs-window-background-face . solaire-default-face) solaire-mode-remap-alist)
+  (push '(treemacs-hl-line-face . solaire-hl-line-face) solaire-mode-remap-alist)
+  ;; (face-remap-add-relative 'default 'treemacs-window-background-face)
+  ;; (face-remap-add-relative 'fringe  'treemacs-window-background-face)
+  ;; (face-remap-add-relative 'hl-line 'treemacs-hl-line-face)
+  (solaire-global-mode +1))
 
 ;; ---------------------------------------
 ;; Searching
