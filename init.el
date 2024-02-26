@@ -49,9 +49,14 @@ This function should only modify configuration layer settings."
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-enable-sort-by-usage t
                       auto-completion-idle-delay 0.0
-                      auto-completion-minimum-prefix-length 1
+                      auto-completion-minimum-prefix-length 1)
                       ;; auto-completion-complete-with-key-sequence "fd"
-                      )
+
+
+     ;; Git
+     blamer
+
+     better-defaults
 
      ;; https://develop.spacemacs.org/layers/+lang/clojure/README.html
      (clojure :variables
@@ -64,12 +69,12 @@ This function should only modify configuration layer settings."
               clojure-toplevel-inside-comment-form t ; clashes with LSP
               cider-result-overlay-position 'at-point   ; results shown right after expression
               cider-overlays-use-font-lock t
+              cider-font-lock-dynamically nil           ; prefer LSP semantic tokens
+              cider-eldoc-display-for-symbol-at-point nil ; prefer LSP
               cider-repl-buffer-size-limit 100          ; limit lines shown in REPL buffer
-              nrepl-use-ssh-fallback-for-remote-hosts t ; connect via ssh to remote hosts
-              )
+              nrepl-use-ssh-fallback-for-remote-hosts t) ; connect via ssh to remote hosts
 
-     ;; Nyan cat indicating relative position in current buffer
-     ;; :variables colors-enable-nyan-cat-progress-bar (display-graphic-p)
+
      colors
 
      ;; SPC a L displays key and command history in a separate buffer
@@ -83,11 +88,17 @@ This function should only modify configuration layer settings."
      (docker :variables
              docker-dockerfile-backend 'lsp)
 
+
+     ;; Rest client
+     restclient
+
      ;; For Spacemacs configuration files and packages
      emacs-lisp
 
      ;; Include emojis into everything
      emoji
+
+     fsharp
 
      ;; SPC g s opens Magit git client full screen (q restores previous layout)
      ;; show word-granularity differences in current diff hunk
@@ -96,25 +107,28 @@ This function should only modify configuration layer settings."
      (git :variables
           git-magit-status-fullscreen t
           magit-diff-refine-hunk t
-          git-enable-magit-todos-plugin t
+          git-enable-magit-todos-plugin t)
 
           ;; Install https://github.com/dandavison/delta for language syntax highlights in diff
           ;; git-enable-magit-delta-plugin t
-          )
+
 
      ;; graphviz - open-source graph declaration system
      ;; Used to generated graphs of Clojure project dependencies
      ;; https://develop.spacemacs.org/layers/+lang/graphviz/README.html
      graphviz
 
+     html
      ;; add variable `helm-follow-mode-persistent t' for helm-follow-mode sticky
      ;; helm follow mode previews when scrolling through a helm list
      ;; - remembers use of C-c C-f in helm pop-up
-     helm
+     ;; helm
+     (ivy :variables ivy-enable-icons t)
 
-     html
-     javascript
      json
+     javascript
+
+     lua
 
      ;; Language server protocol with minimal visual impact
      ;; https://practical.li/spacemacs/install-spacemacs/clojure-lsp/
@@ -125,12 +139,17 @@ This function should only modify configuration layer settings."
           lsp-semantic-tokens-enable t                    ; enhance syntax highlight
           lsp-treemacs-error-list-current-project-only t  ; limit errors to current project
           lsp-idle-delay 1.5                              ; smooth LSP features response
-          lsp-eldoc-enable-hover nil                      ; disable all hover actions
-          lsp-ui-doc-enable nil                           ; doc hover popups
-          lsp-ui-sideline-enable nil                      ; sidebar code actions visual indicator
+          lsp-eldoc-enable-hover t                      ; disable all hover actions
+          lsp-ui-doc-enable t                           ; doc hover popups
+          lsp-ui-sideline-enable t                      ; sidebar code actions visual indicator
+          lsp-ui-sideline-show-diagnostics nil
+          lsp-ui-sideline-show-code-actions t
+          lsp-ui-doc-include-signature t
+          lsp-ui-doc-show-with-cursor t
+          lsp-ui-doc-position 'at-point
           treemacs-space-between-root-nodes nil           ; spacing in treemacs views
-          lsp-log-io t                                    ; Log client-server json communication
-          )
+          lsp-log-io t)                                    ; Log client-server json communication
+
 
      markdown
 
@@ -138,14 +157,16 @@ This function should only modify configuration layer settings."
      ;; `g r' menu in Emacs normal state
      multiple-cursors
 
+     ;; nyan-mode
+
      ;; Spacemacs Org mode
      (org :variables
           org-enable-github-support t
           org-enable-bootstrap-support t
-          ;; org-enable-reveal-js-support t
+          org-enable-reveal-js-support t
           org-want-todo-bindings t
           org-enable-org-journal-support t
-          org-journal-dir "~/projects/journal/"
+          org-journal-dir "~/03_Drafts/journal"
           org-journal-file-format "%Y-%m-%d"
           org-journal-date-prefix "#+TITLE: "
           org-journal-date-format "%A, %B %d %Y"
@@ -154,6 +175,11 @@ This function should only modify configuration layer settings."
           org-journal-carryover-items "TODO=\"TODO\"|TODO=\"DOING\"|TODO=\"BLOCKED\"|TODO=\"REVIEW\"")
 
 
+     parinfer
+     prettier
+
+     rust
+     react
      ;; Text-based file manager with preview - SPC a t r r
      (ranger :variables
              ranger-show-preview t
@@ -178,22 +204,33 @@ This function should only modify configuration layer settings."
 
      ;; Configuration: https://github.com/seagle0128/doom-modeline#customize
      (spacemacs-modeline :variables
-                         doom-modeline-height 12
+                         doom-modeline-height 16
                          doom-modeline-bar-width 0                  ; size of bar icon at start of modeline
                          doom-modeline-buffer-state-icon t          ; disk icon for unsaved changes (default)
                          doom-modeline-major-mode-color-icon t      ; color icon of major mode
                          doom-modeline-buffer-file-name-style 'relative-to-project
                          doom-modeline-display-default-persp-name t ; layout name
+                         doom-modeline-lsp-icon t
                          doom-modeline-minor-modes nil              ; show minor modes
                          doom-modeline-modal nil                    ; show Evil state icon/text
+                         doom-modeline-env-version t                ; Whether display the environment version
                          ;; doom-modeline-modal-icon t              ; icon when t, ascii when nil
-                         doom-modeline-buffer-encoding nil          ; remove UTF-8, etc.
-                         )
+                         doom-modeline-buffer-encoding nil)          ; remove UTF-8, etc.
+
 
      ;; Spell as you type with Flyspell package,
      ;; requires external command - ispell, hunspell, aspell
      ;; SPC S menu, SPC S s to check current word
      spell-checking
+
+
+     ;; Add tabs at the top of buffer
+     tabs
+
+     (typescript :variables
+                 typescript-linter 'eslint
+                 typescript-fmt-tool 'prettier
+                 typescript-backend 'lsp)
 
      ;; Use original flycheck fringe bitmaps
      ;; (syntax-checking :variables
@@ -203,6 +240,7 @@ This function should only modify configuration layer settings."
      ;; treemacs-no-png-images t removes file and directory icons
      (treemacs :variables
                treemacs-indentation 1
+               treemacs-use-all-the-icons-theme t
                treemacs-use-filewatch-mode t
                treemacs-use-follow-mode t)
 
@@ -222,7 +260,14 @@ This function should only modify configuration layer settings."
      (yaml :variables
            yaml-enable-lsp t)
 
-     ) ; End of dotspacemacs-configuration-layers
+     ;; Applications:
+     dash
+     epub
+     pdf
+     djvu
+     speed-reading
+     spotify)
+      ; End of dotspacemacs-configuration-layers
 
 
    ;; List of additional packages that will be installed without being wrapped
@@ -234,6 +279,9 @@ This function should only modify configuration layer settings."
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(clojure-essential-ref
+                                      all-the-icons
+                                      telega
+                                      ivy-posframe
                                       (evil-surround
                                        :location
                                        (recipe :fetcher github
@@ -412,10 +460,8 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(doom-gruvbox
-                         doom-gruvbox-light
-                         spacemacs-dark
-                         spacemacs-light)
+   dotspacemacs-themes '(doom-palenight
+                         doom-gruvbox-light)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -433,8 +479,8 @@ It should only modify the values of Spacemacs settings."
    ;; Default font or prioritized list of fonts. The `:size' can be specified as
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
-   dotspacemacs-default-font '("Fira Code"
-                               :size 12.0
+   dotspacemacs-default-font '("JetBrainsMono Nerd Font"
+                               :size 13.0
                                :weight normal
                                :width normal)
 
@@ -597,7 +643,8 @@ It should only modify the values of Spacemacs settings."
    ;;   :size-limit-kb 1000)
    ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
-   dotspacemacs-line-numbers '(:visual t
+
+   dotspacemacs-line-numbers '(:relative t
                                :disabled-for-modes dired-mode
                                                    doc-view-mode
                                                    pdf-view-mode
@@ -619,7 +666,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil pressing the closing parenthesis `)' key in insert mode passes
    ;; over any automatically added closing parenthesis, bracket, quote, etc...
    ;; This can be temporary disabled by pressing `C-q' before `)'. (default nil)
-   dotspacemacs-smart-closing-parenthesis t
+   dotspacemacs-smart-closing-parenthesis nil
 
    ;; Select a scope to highlight delimiters. Possible values are `any',
    ;; `current', `all' or `nil'. Default is `all' (highlight any scope and
@@ -723,8 +770,8 @@ This function defines the environment variables for your Emacs session. By
 default it calls `spacemacs/load-spacemacs-env' which loads the environment
 variables declared in `~/.spacemacs.env' or `~/.spacemacs.d/.spacemacs.env'.
 See the header of this file for more information."
-  (spacemacs/load-spacemacs-env)
-)
+  (spacemacs/load-spacemacs-env))
+
 
 (defun dotspacemacs/user-init ()
   "Initialization for user code:
@@ -736,16 +783,16 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   ;; Save `dotspacemacs/emacs-custom-settings' in a separate file
   ;; simplifying version control of the Spacemacs configuration file
   (setq custom-file (file-truename (concat dotspacemacs-directory "emacs-custom-settings.el")))
-  (load custom-file)
-)
+  (load custom-file))
+
 
 
 (defun dotspacemacs/user-load ()
   "Library to load while dumping.
 This function is called only while dumping Spacemacs configuration. You can
 `require' or `load' the libraries of your choice that will be included in the
-dump."
-)
+dump.")
+
 
 
 (defun dotspacemacs/user-config ()
@@ -775,15 +822,15 @@ before packages are loaded."
   (load version-control-config-file)
 
   ;; Org-mode customisation - notes and tasks
-  ;; (setq org-config-file (file-truename (concat dotspacemacs-directory "org-config.el")))
-  ;; (load org-config-file)
+  (setq org-config-file (file-truename (concat dotspacemacs-directory "org-config.el")))
+  (load org-config-file))
 
   ;; EShell Customisation
   ;; NOTE: Practicalli uses vterm for shell by default
   ;; (setq eshell-config-file (file-truename (concat dotspacemacs-directory "eshell-config.el")))
   ;; (load eshell-config-file)
 
-)
+
 
 
 ;; Do not write anything past this comment. This is where Emacs will

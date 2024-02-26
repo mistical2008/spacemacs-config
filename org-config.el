@@ -8,7 +8,7 @@
 (with-eval-after-load 'org
   (setq
    ;; Define the location of the file to hold tasks
-   org-default-notes-file "~/projects/todo-list.org"
+   org-default-notes-file "~/03_Drafts/01_tasks/todo.org"
 
    ;; Define a kanban style set of stages for todo tasks
    org-todo-keywords '((sequence "TODO" "DOING" "BLOCKED" "REVIEW" "|" "DONE" "ARCHIVED"))
