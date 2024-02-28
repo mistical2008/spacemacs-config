@@ -20,7 +20,7 @@
 ;; with a number to define how many sub-directories to search
 ;; `SPC g L' - list all Git repositories in the defined paths,
 (setq magit-repository-directories
-      '(("~/01_Library/02_repos/" . 2)) ("~/01_Library/03_repos-work/orgs/scan-lab/main" . 2))
+      '(("~/01_Library/02_repos/" . 2) ("~/01_Library/03_repos-work/orgs/scan-lab/main" . 2)))
 
 ;; path for developer tokens (default ~/.authinfo)
 ;; Use XDG_CONFIG_HOME location or HOME
