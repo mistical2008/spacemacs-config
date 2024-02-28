@@ -17,7 +17,14 @@
 (setq-default display-line-numbers-width nil)
 ;; ---------------------------------------
 
-(setq-default telega-server-libs-prefix "/usr/lib")
+;; ---------------------------------------
+;; Telegram chat
+(setq-default telega-use-docker t)
+(add-hook 'telega-load-hook 'global-telega-mnz-mode)
+(add-hook 'telega-load-hook 'telega-notifications-mode)
+(with-eval-after-load 'telega-use-docker
+  (telega-alert-mode 1))
+;; ---------------------------------------
 
 ;; Ivy extensions
 (with-eval-after-load 'ivy
@@ -30,18 +37,41 @@
 ;; Solaire-mode setup
 (with-eval-after-load 'solaire-mode
   (push '(treemacs-window-background-face . solaire-default-face) solaire-mode-remap-alist)
-  (push '(treemacs-hl-line-face . solaire-hl-line-face) solaire-mode-remap-alist)
-  ;; (face-remap-add-relative 'default 'treemacs-window-background-face)
-  ;; (face-remap-add-relative 'fringe  'treemacs-window-background-face)
-  ;; (face-remap-add-relative 'hl-line 'treemacs-hl-line-face)
-  (solaire-global-mode +1))
+  (push '(treemacs-hl-line-face . solaire-hl-line-face) solaire-mode-remap-alist))
+(with-eval-after-load 'vterm-mode
+  (#'turn-on-solaire-mode))
+(with-eval-after-load 'eshell-mode
+  (#'turn-on-solaire-mode))
+(add-hook 'after-change-major-mode-hook #'turn-on-solaire-mode)
+(add-hook 'after-revert-hook #'turn-on-solaire-mode)
+(add-hook 'ediff-prepare-buffer-hook #'solaire-mode)
 
 ;; ---------------------------------------
 ;; Searching
-(evil-global-set-key 'normal
-                     "/" (alist-get :buffer-search-tool config))
-;;
-;; ---------------------------------------
+(evil-global-set-key 'normal "/" (alist-get :buffer-search-tool config))
+(evil-global-set-key 'normal "<leader>gwb" magit-worktree-branch)
+;; "<leader>gwm" magit-worktree-move
+;; "<leader>gwd" magit-worktree-delete
+;; "<leader>gwc" magit-worktree-checkout
+;; "<leader>gws" magit-worktree-status
+
+;; (defun my-magit-worktrees-keybindings ()
+;;   "Define keybindings for Magit worktrees."
+;;   (which-key-add-key-based-replacements
+;;     "<SPC> g w" "Magit worktrees"
+;;     "<SPC> g w b" "Create new worktree"
+;;     "<SPC> g w m" "Move worktree"
+;;     "<SPC> g w d" "Delete worktree"
+;;     "<SPC> g w s" "Show worktree status"
+;;     "<SPC> g w c" "Checkout worktree")
+;;   (spacemacs/set-leader-keys-for-major-mode 'magit-status-mode
+;;     "gwb" 'magit-worktree-branch
+;;     "gwm" 'magit-worktree-move
+;;     "gwd" 'magit-worktree-delete
+;;     "gws" 'magit-worktree-status
+;;     "gwc" 'magit-worktree-checkout))
+
+;; (add-hook 'magit-status-mode-hook #'my-magit-worktrees-keybindings)
 
 ;; ---------------------------------------
 ;; Helm Descbinds

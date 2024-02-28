@@ -2,6 +2,34 @@
 ;; This file is loaded by Spacemacs at startup.
 ;; It must be stored in your home directory.
 
+(defun lsp-booster--advice-json-parse (old-fn &rest args)
+  "Try to parse bytecode instead of json."
+  (or
+   (when (equal (following-char) ?#)
+     (let ((bytecode (read (current-buffer))))
+       (when (byte-code-function-p bytecode)
+         (funcall bytecode))))
+   (apply old-fn args)))
+(advice-add (if (progn (require 'json)
+                       (fboundp 'json-parse-buffer))
+                'json-parse-buffer
+              'json-read)
+            :around
+            #'lsp-booster--advice-json-parse)
+
+(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+  "Prepend emacs-lsp-booster command to lsp CMD."
+  (let ((orig-result (funcall old-fn cmd test?)))
+    (if (and (not test?)                             ;; for check lsp-server-present?
+             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+             lsp-use-plists
+             (not (functionp 'json-rpc-connection))  ;; native json-rpc
+             (executable-find "emacs-lsp-booster"))
+        (progn
+          (message "Using emacs-lsp-booster for %s!" orig-result)
+          (cons "emacs-lsp-booster" orig-result))
+      orig-result)))
+
 (defun dotspacemacs/layers ()
   "Layer configuration:
 This function should only modify configuration layer settings."
@@ -40,6 +68,7 @@ This function should only modify configuration layer settings."
      ;; ----------------------------------------------------------------
      ;;
      ;; Layers added in alphabetic order
+     ;; keyboard-layout
 
      ;; Add tool tips to show doc string of functions
      ;; Show snippets in the auto-completion popup
@@ -54,7 +83,7 @@ This function should only modify configuration layer settings."
 
 
      ;; Git
-     blamer
+     ;; blamer
 
      better-defaults
 
@@ -84,6 +113,9 @@ This function should only modify configuration layer settings."
      ;; https://develop.spacemacs.org/layers/+lang/csv/README.html
      csv
 
+     ;; Debugging
+     dap
+
      ;; Dockerfile LSP and docker container management
      (docker :variables
              docker-dockerfile-backend 'lsp)
@@ -107,10 +139,10 @@ This function should only modify configuration layer settings."
      (git :variables
           git-magit-status-fullscreen t
           magit-diff-refine-hunk t
-          git-enable-magit-todos-plugin t)
+          git-enable-magit-todos-plugin t
 
           ;; Install https://github.com/dandavison/delta for language syntax highlights in diff
-          ;; git-enable-magit-delta-plugin t
+          git-enable-magit-delta-plugin t)
 
 
      ;; graphviz - open-source graph declaration system
@@ -118,7 +150,11 @@ This function should only modify configuration layer settings."
      ;; https://develop.spacemacs.org/layers/+lang/graphviz/README.html
      graphviz
 
-     html
+     (html :variables
+           css-enable-lsp t
+           scss-enable-lsp t
+           html-enable-lsp t
+           web-fmt-tool 'prettier)
      ;; add variable `helm-follow-mode-persistent t' for helm-follow-mode sticky
      ;; helm follow mode previews when scrolling through a helm list
      ;; - remembers use of C-c C-f in helm pop-up
@@ -133,22 +169,25 @@ This function should only modify configuration layer settings."
      ;; Language server protocol with minimal visual impact
      ;; https://practical.li/spacemacs/install-spacemacs/clojure-lsp/
      (lsp :variables
+          lsp-lens-enable t                               ; enable lsp-lens for lang actions
           lsp-headerline-breadcrumb-enable t              ; Breadcrumb trail
           lsp-headerline-breadcrumb-segments '(symbols)   ; namespace & symbols, no file path
           lsp-ui-peek-enable nil                          ; popups for refs, errors, symbols, etc.
           lsp-semantic-tokens-enable t                    ; enhance syntax highlight
           lsp-treemacs-error-list-current-project-only t  ; limit errors to current project
-          lsp-idle-delay 1.5                              ; smooth LSP features response
+          lsp-idle-delay 0.500                              ; smooth LSP features response
           lsp-eldoc-enable-hover t                      ; disable all hover actions
           lsp-ui-doc-enable t                           ; doc hover popups
-          lsp-ui-sideline-enable t                      ; sidebar code actions visual indicator
+          lsp-ui-sideline-enable nil                      ; sidebar code actions visual indicator
           lsp-ui-sideline-show-diagnostics nil
           lsp-ui-sideline-show-code-actions t
           lsp-ui-doc-include-signature t
           lsp-ui-doc-show-with-cursor t
           lsp-ui-doc-position 'at-point
+          lsp-modeline-diagnostics-scope 'file
           treemacs-space-between-root-nodes nil           ; spacing in treemacs views
-          lsp-log-io t)                                    ; Log client-server json communication
+          lsp-log-io t)
+                                        ; Log client-server json communication
 
 
      markdown
@@ -179,7 +218,7 @@ This function should only modify configuration layer settings."
      prettier
 
      rust
-     react
+     ;; react
      ;; Text-based file manager with preview - SPC a t r r
      (ranger :variables
              ranger-show-preview t
@@ -225,16 +264,19 @@ This function should only modify configuration layer settings."
 
 
      ;; Add tabs at the top of buffer
-     tabs
+     (tabs :variables
+           tabs-auto-hide t
+           tabs-auto-hide-delay 3.0)
 
      (typescript :variables
                  typescript-linter 'eslint
                  typescript-fmt-tool 'prettier
-                 typescript-backend 'lsp)
+                 typescript-backend 'lsp
+                 typescript-fmt-on-save t)
 
      ;; Use original flycheck fringe bitmaps
-     ;; (syntax-checking :variables
-     ;;                  syntax-checking-use-original-bitmaps t)
+     (syntax-checking :variables
+                      syntax-checking-use-original-bitmaps t)
 
      ;; Visual file manager - `SPC p t'
      ;; treemacs-no-png-images t removes file and directory icons
@@ -281,8 +323,11 @@ This function should only modify configuration layer settings."
    dotspacemacs-additional-packages '(clojure-essential-ref
                                       all-the-icons
                                       telega
+                                      telega-mnz
+                                      telega-chats
                                       ivy-posframe
                                       solaire-mode
+                                      ;; emacs-lsp-booster
                                       (evil-surround
                                        :location
                                        (recipe :fetcher github
@@ -305,6 +350,8 @@ This function should only modify configuration layer settings."
    dotspacemacs-install-packages 'used-only))
 
 (defun dotspacemacs/init ()
+
+
   "Initialization:
 This function is called at the very beginning of Spacemacs startup,
 before layer configuration.
@@ -422,9 +469,10 @@ It should only modify the values of Spacemacs settings."
    ;; number is the project limit and the second the limit on the recent files
    ;; within a project.
    dotspacemacs-startup-lists '((agenda . 3)
-                                (todos . 5)
+                                (todos . 3)
                                 (recents-by-project . (5 . 5))
-                                (projects . 7))
+                                (telega-chats . 5))
+
 
    ;; True if the home buffer should respond to resize events. (default t)
    dotspacemacs-startup-buffer-responsive t
@@ -474,7 +522,7 @@ It should only modify the values of Spacemacs settings."
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
    ;; dotspacemacs-mode-line-theme '(vanilla :separator none :separator-scale 1.5)
-   dotspacemacs-mode-line-theme '(spacemacs)
+   dotspacemacs-mode-line-theme '(doom)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
@@ -561,6 +609,10 @@ It should only modify the values of Spacemacs settings."
    ;; Which-key frame position. Possible values are `right', `bottom' and
    ;; `right-then-bottom'. right-then-bottom tries to display the frame to the
    ;; right; if there is insufficient space it displays it at the bottom.
+   ;; It is also possible to use a posframe with the following cons cell
+   ;; `(posframe . position)' where position can be one of `center',
+   ;; `top-center', `bottom-center', `top-left-corner', `top-right-corner',
+   ;; `top-right-corner', `bottom-left-corner' or `bottom-right-corner'
    ;; (default 'bottom)
    dotspacemacs-which-key-position 'bottom
 
@@ -679,7 +731,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil, start an Emacs server if one is not already running.
    ;; (default nil)
-   dotspacemacs-enable-server nil
+   dotspacemacs-enable-server t
 
    ;; Set the emacs server socket location.
    ;; If nil, uses whatever the Emacs default is, otherwise a directory path
@@ -690,7 +742,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil, advise quit functions to keep server open when quitting.
    ;; (default nil)
-   dotspacemacs-persistent-server nil
+   dotspacemacs-persistent-server t
 
    ;; List of search tool executable names. Spacemacs uses the first installed
    ;; tool of the list. Supported tools are `rg', `ag', `pt', `ack' and `grep'.
@@ -769,6 +821,10 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-byte-compile nil))
 
 (defun dotspacemacs/user-env ()
+
+  ;; emacs-lsp-booster requirement
+  (setenv "LSP_USE_PLISTS" "true")
+
   "Environment variables setup.
 This function defines the environment variables for your Emacs session. By
 default it calls `spacemacs/load-spacemacs-env' which loads the environment
@@ -784,6 +840,7 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
+  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
   ;; Save `dotspacemacs/emacs-custom-settings' in a separate file
   ;; simplifying version control of the Spacemacs configuration file
   (setq custom-file (file-truename (concat dotspacemacs-directory "emacs-custom-settings.el")))
