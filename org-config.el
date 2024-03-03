@@ -11,10 +11,14 @@
    org-default-notes-file "~/03_Drafts/01_tasks/todo.org"
 
    ;; Define a kanban style set of stages for todo tasks
-   org-todo-keywords '((sequence "TODO" "DOING" "BLOCKED" "REVIEW" "|" "DONE" "ARCHIVED"))
+   org-todo-keywords '((sequence "TODO(t)" "DOING(p)" "BLOCKED(b)" "REVIEW(r)" "|" "DONE(d)" "ARCHIVED(a)"))
 
    ;; Progress Log - add CLOSED: property & current date-time when TODO item enters DONE
-   org-log-done 'time
+   org-log-done 'time))
+
+(with-eval-after-load 'org-agenda
+  ;; (require 'org-projectile)
+  ;; (push (org-projectile:todo-files) org-agenda-files))
 
    ;; Setting colours (faces) of task states
    ;; https://github.com/tkf/org-mode/blob/master/lisp/org-faces.el#L376
@@ -26,9 +30,9 @@
      ("BLOCKED" . "Firebrick")
      ("REVIEW" . "Teal")
      ("DONE" . "ForestGreen")
-     ("ARCHIVED" .  "SlateBlue"))))
+     ("ARCHIVED" .  "SlateBlue")))
 
-;; Set TODO keyword faces if over-ridden by theme.
+;; ;; Set TODO keyword faces if over-ridden by theme.
 (defun practicalli/set-todo-keyword-faces ()
   (interactive)
   (setq hl-todo-keyword-faces

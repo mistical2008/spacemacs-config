@@ -2,34 +2,6 @@
 ;; This file is loaded by Spacemacs at startup.
 ;; It must be stored in your home directory.
 
-(defun lsp-booster--advice-json-parse (old-fn &rest args)
-  "Try to parse bytecode instead of json."
-  (or
-   (when (equal (following-char) ?#)
-     (let ((bytecode (read (current-buffer))))
-       (when (byte-code-function-p bytecode)
-         (funcall bytecode))))
-   (apply old-fn args)))
-(advice-add (if (progn (require 'json)
-                       (fboundp 'json-parse-buffer))
-                'json-parse-buffer
-              'json-read)
-            :around
-            #'lsp-booster--advice-json-parse)
-
-(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
-  "Prepend emacs-lsp-booster command to lsp CMD."
-  (let ((orig-result (funcall old-fn cmd test?)))
-    (if (and (not test?)                             ;; for check lsp-server-present?
-             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
-             lsp-use-plists
-             (not (functionp 'json-rpc-connection))  ;; native json-rpc
-             (executable-find "emacs-lsp-booster"))
-        (progn
-          (message "Using emacs-lsp-booster for %s!" orig-result)
-          (cons "emacs-lsp-booster" orig-result))
-      orig-result)))
-
 (defun dotspacemacs/layers ()
   "Layer configuration:
 This function should only modify configuration layer settings."
@@ -74,9 +46,9 @@ This function should only modify configuration layer settings."
      ;; Show snippets in the auto-completion popup
      ;; Show suggestions by most commonly used
      (auto-completion :variables
-                      auto-completion-enable-help-tooltip t
-                      auto-completion-enable-snippets-in-popup t
-                      auto-completion-enable-sort-by-usage t
+                      auto-completion-enable-help-tooltip 'manual
+                      auto-completion-enable-snippets-in-popup nil
+                      auto-completion-enable-sort-by-usage nil
                       auto-completion-idle-delay 0.0
                       auto-completion-minimum-prefix-length 1)
                       ;; auto-completion-complete-with-key-sequence "fd"
@@ -173,20 +145,22 @@ This function should only modify configuration layer settings."
           lsp-headerline-breadcrumb-enable t              ; Breadcrumb trail
           lsp-headerline-breadcrumb-segments '(symbols)   ; namespace & symbols, no file path
           lsp-ui-peek-enable nil                          ; popups for refs, errors, symbols, etc.
-          lsp-semantic-tokens-enable t                    ; enhance syntax highlight
+
+          lsp-eslint-auto-fix-on-save t                   ; formatting code
+          lsp-semantic-tokens-enable t                    ; enhance syntax highlight. NOTE: nil will suffering auto-completion
           lsp-treemacs-error-list-current-project-only t  ; limit errors to current project
-          lsp-idle-delay 0.500                              ; smooth LSP features response
+          lsp-idle-delay 0.900                              ; smooth LSP features response
           lsp-eldoc-enable-hover t                      ; disable all hover actions
           lsp-ui-doc-enable t                           ; doc hover popups
           lsp-ui-sideline-enable nil                      ; sidebar code actions visual indicator
           lsp-ui-sideline-show-diagnostics nil
-          lsp-ui-sideline-show-code-actions t
+          lsp-ui-sideline-show-code-actions nil
           lsp-ui-doc-include-signature t
-          lsp-ui-doc-show-with-cursor t
+          ;; lsp-ui-doc-show-with-cursor t
           lsp-ui-doc-position 'at-point
           lsp-modeline-diagnostics-scope 'file
-          treemacs-space-between-root-nodes nil           ; spacing in treemacs views
-          lsp-log-io t)
+          treemacs-space-between-root-nodes t)           ; spacing in treemacs views
+
                                         ; Log client-server json communication
 
 
@@ -201,10 +175,20 @@ This function should only modify configuration layer settings."
      ;; Spacemacs Org mode
      (org :variables
           org-enable-github-support t
+          org-todo-keywords '((sequence "TODO(t)" "DOING(p)" "BLOCKED(b)" "REVIEW(r)" "|" "DONE(d)" "ARCHIVED(a)"))
+          org-todo-keyword-faces '(("TODO" . "SlateGray")
+                                   ("DOING" . "DarkOrchid")
+                                   ("BLOCKED" . "Firebrick")
+                                   ("REVIEW" . "Teal")
+                                   ("DONE" . "ForestGreen")
+                                   ("ARCHIVED" .  "SlateBlue"))
+          org-support-shift-select t
           org-enable-bootstrap-support t
           org-enable-reveal-js-support t
+          org-projectile-file "TODOs.org"
           org-want-todo-bindings t
           org-enable-org-journal-support t
+          org-default-notes-file "~/03_Drafts/01_tasks/todo.org"
           org-journal-dir "~/03_Drafts/journal"
           org-journal-file-format "%Y-%m-%d"
           org-journal-date-prefix "#+TITLE: "
@@ -232,6 +216,7 @@ This function should only modify configuration layer settings."
             shell-default-shell 'vterm
             shell-default-term-shell "/usr/bin/zsh"
             shell-default-height 30
+            ;; terminal-here-terminal-command "wezterm"
             shell-default-position 'bottom)
 
      ;; spacemacs-layouts layer added to set variables
@@ -262,6 +247,12 @@ This function should only modify configuration layer settings."
      ;; SPC S menu, SPC S s to check current word
      spell-checking
 
+     ;; Use original flycheck fringe bitmaps
+     (syntax-checking :variables
+                      tree-sitter-syntax-highlight-enable t
+                      tree-sitter-fold-enable nil                          ;; NOTE: t will suffering auto-completion
+                      syntax-checking-enable-tooltips t
+                      syntax-checking-indication-symbol 'standard-value)
 
      ;; Add tabs at the top of buffer
      (tabs :variables
@@ -269,14 +260,11 @@ This function should only modify configuration layer settings."
            tabs-auto-hide-delay 3.0)
 
      (typescript :variables
+                 lsp-clients-typescript-tls-path "vtsls"
                  typescript-linter 'eslint
                  typescript-fmt-tool 'prettier
-                 typescript-backend 'lsp
-                 typescript-fmt-on-save t)
-
-     ;; Use original flycheck fringe bitmaps
-     (syntax-checking :variables
-                      syntax-checking-use-original-bitmaps t)
+                 typescript-backend 'lsp)
+     ;; typescript-fmt-on-save t)
 
      ;; Visual file manager - `SPC p t'
      ;; treemacs-no-png-images t removes file and directory icons
@@ -285,6 +273,8 @@ This function should only modify configuration layer settings."
                treemacs-use-all-the-icons-theme t
                treemacs-use-filewatch-mode t
                treemacs-use-follow-mode t)
+
+     tree-sitter
 
      ;; Support font ligatures (fancy symbols) in all modes
      ;; 'prog-mode for only programming languages
@@ -308,7 +298,9 @@ This function should only modify configuration layer settings."
      pdf
      djvu
      speed-reading
-     spotify)
+     (spotify :variables
+              counsel-spotify-client-id "54ec2083ac484276ab5bfb913939d800"
+              counsel-spotify-client-secret "b28cb386226b42b8b4c4d939b9b25c15"))
       ; End of dotspacemacs-configuration-layers
 
 
@@ -323,10 +315,9 @@ This function should only modify configuration layer settings."
    dotspacemacs-additional-packages '(clojure-essential-ref
                                       all-the-icons
                                       telega
-                                      telega-mnz
-                                      telega-chats
                                       ivy-posframe
                                       solaire-mode
+                                      add-node-modules-path
                                       ;; emacs-lsp-booster
                                       (evil-surround
                                        :location
@@ -470,11 +461,11 @@ It should only modify the values of Spacemacs settings."
    ;; within a project.
    dotspacemacs-startup-lists '((agenda . 3)
                                 (todos . 3)
-                                (recents-by-project . (5 . 5))
-                                (telega-chats . 5))
+                                (recents-by-project . (5 . 5)))
+                                ;; (telega-chats . 5))
 
 
-   ;; True if the home buffer should respond to resize events. (default t)
+   ;; True if the home buffer should resspotify-pond to resize events. (default t)
    dotspacemacs-startup-buffer-responsive t
 
    ;; Show numbers before the startup list lines. (default t)
@@ -600,7 +591,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil, the paste transient-state is enabled. While enabled, after you
    ;; paste something, pressing `C-j' and `C-k' several times cycles through the
    ;; elements in the `kill-ring'. (default nil)
-   dotspacemacs-enable-paste-transient-state t
+   dotspacemacs-enable-paste-transient-state nil
 
    ;; Which-key delay in seconds. The which-key buffer is the popup listing
    ;; the commands bound to the current keystroke sequence. (default 0.4)
@@ -840,10 +831,12 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
-  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
   ;; Save `dotspacemacs/emacs-custom-settings' in a separate file
   ;; simplifying version control of the Spacemacs configuration file
-  (setq custom-file (file-truename (concat dotspacemacs-directory "emacs-custom-settings.el")))
+  (setq custom-user-init-file (file-truename (concat dotspacemacs-directory "user-custom-init-config.el")))
+  (load custom-user-init-file)
+
+  (setq custom-user-file (file-truename (concat dotspacemacs-directory "user-init-settings.el")))
   (load custom-file))
 
 
@@ -890,8 +883,6 @@ before packages are loaded."
   ;; NOTE: Practicalli uses vterm for shell by default
   ;; (setq eshell-config-file (file-truename (concat dotspacemacs-directory "eshell-config.el")))
   ;; (load eshell-config-file)
-
-
 
 
 ;; Do not write anything past this comment. This is where Emacs will
