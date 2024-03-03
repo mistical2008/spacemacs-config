@@ -2,6 +2,8 @@
 ;; This file is loaded by Spacemacs at startup.
 ;; It must be stored in your home directory.
 
+(load-file (concat dotspacemacs-directory "utils.el"))
+
 (defun dotspacemacs/layers ()
   "Layer configuration:
 This function should only modify configuration layer settings."
@@ -860,31 +862,15 @@ before packages are loaded."
   ;; dotspacemacs/user-config divided into files
   ;; - comment files to skip loading specific configuration
 
-  ;; General configuration
-  (setq user-config-file (file-truename (concat dotspacemacs-directory "user-config.el")))
-  (load user-config-file)
-
-  ;; Clojure Layer additionalb configuration
-  (setq clojure-config-file (file-truename (concat dotspacemacs-directory "clojure-config.el")))
-  (load clojure-config-file)
-
-  ;; Customise Theme and Mode-line
-  (setq theme-config-file (file-truename (concat dotspacemacs-directory "theme-config.el")))
-  (load theme-config-file)
-
-  ;; Version Control - Magit & Forge
-  (setq version-control-config-file (file-truename (concat dotspacemacs-directory "version-control-config.el")))
-  (load version-control-config-file)
-
-  ;; Org-mode customisation - notes and tasks
-  (setq org-config-file (file-truename (concat dotspacemacs-directory "org-config.el")))
-  (load org-config-file))
-
-  ;; EShell Customisation
-  ;; NOTE: Practicalli uses vterm for shell by default
-  ;; (setq eshell-config-file (file-truename (concat dotspacemacs-directory "eshell-config.el")))
-  ;; (load eshell-config-file)
-
+  (etlk/config-utils-apply-config-files '("user-config.el"
+                                          "clojure-config.el"
+                                          "tree-sitter-config.el"
+                                          "theme-config.el"
+                                          "version-control-config.el"
+                                          ;; EShell Customisation
+                                          ;; NOTE: Practicalli uses vterm for shell by default
+                                          ;; "eshell-config.el"
+                                          "org-config.el")))
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
