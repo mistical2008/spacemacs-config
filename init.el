@@ -46,6 +46,7 @@ This function should only modify configuration layer settings."
      ;; Show snippets in the auto-completion popup
      ;; Show suggestions by most commonly used
      (auto-completion :variables
+                      company-tooltip-align-annotations t
                       auto-completion-enable-help-tooltip 'manual
                       auto-completion-enable-snippets-in-popup nil
                       auto-completion-enable-sort-by-usage nil
