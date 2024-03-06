@@ -4,9 +4,6 @@
 
 (load-file (concat dotspacemacs-directory "utils.el"))
 
-(setq constants '(
-                  (:drafts . "~/03_Drafts")))
-
 
 (defun dotspacemacs/layers ()
   "Layer configuration:
@@ -185,27 +182,24 @@ This function should only modify configuration layer settings."
      (org :variables
           org-enable-modern-support t
           org-enable-appear-support t
+          org-appear-trigger 'manual
+          org-enable-epub-support t
           org-enable-transclusion-support t
           org-enable-roam-support t
           org-enable-roam-ui t
-          org-roam-directory (concat (alist-get :drafts constants) "/" "_org-roam")
-          ;; org-roam-directory "~/03_Drafts/_org-roam"
           org-enable-github-support t
-          org-todo-keywords '((sequence "TODO(t)" "DOING(p)" "BLOCKED(b)" "REVIEW(r)" "|" "DONE(d)" "ARCHIVED(a)"))
-          org-todo-keyword-faces '(("TODO" . "SlateGray")
-                                   ("DOING" . "DarkOrchid")
-                                   ("BLOCKED" . "Firebrick")
-                                   ("REVIEW" . "Teal")
-                                   ("DONE" . "ForestGreen")
-                                   ("ARCHIVED" .  "SlateBlue"))
+          org-todo-keyword-faces '(("TODO"     . "SlateGray")
+                                   ("DOING"    . "DarkOrchid")
+                                   ("BLOCKED"  . "Firebrick")
+                                   ("REVIEW"   . "Teal")
+                                   ("DONE"     . "ForestGreen")
+                                   ("ARCHIVED" . "SlateBlue"))
           org-support-shift-select t
           org-enable-bootstrap-support t
           org-enable-reveal-js-support t
           org-projectile-file "TODOs.org"
           org-want-todo-bindings t
           org-enable-org-journal-support t
-          org-default-notes-file "~/03_Drafts/01_tasks/todo.org"
-          org-journal-dir "~/03_Drafts/journal"
           org-journal-file-format "%Y-%m-%d"
           org-journal-date-prefix "#+TITLE: "
           org-journal-date-format "%A, %B %d %Y"
