@@ -4,6 +4,10 @@
 
 (load-file (concat dotspacemacs-directory "utils.el"))
 
+(setq constants '(
+                  (:drafts . "~/03_Drafts")))
+
+
 (defun dotspacemacs/layers ()
   "Layer configuration:
 This function should only modify configuration layer settings."
@@ -134,7 +138,9 @@ This function should only modify configuration layer settings."
      ;; helm follow mode previews when scrolling through a helm list
      ;; - remembers use of C-c C-f in helm pop-up
      ;; helm
-     (ivy :variables ivy-enable-icons t)
+     (ivy :variables
+          ivy-enable-advanced-buffer-information t
+          ivy-enable-icons t)
 
      json
      javascript
@@ -177,6 +183,13 @@ This function should only modify configuration layer settings."
 
      ;; Spacemacs Org mode
      (org :variables
+          org-enable-modern-support t
+          org-enable-appear-support t
+          org-enable-transclusion-support t
+          org-enable-roam-support t
+          org-enable-roam-ui t
+          org-roam-directory (concat (alist-get :drafts constants) "/" "_org-roam")
+          ;; org-roam-directory "~/03_Drafts/_org-roam"
           org-enable-github-support t
           org-todo-keywords '((sequence "TODO(t)" "DOING(p)" "BLOCKED(b)" "REVIEW(r)" "|" "DONE(d)" "ARCHIVED(a)"))
           org-todo-keyword-faces '(("TODO" . "SlateGray")
@@ -253,9 +266,8 @@ This function should only modify configuration layer settings."
      ;; Use original flycheck fringe bitmaps
      (syntax-checking :variables
                       tree-sitter-syntax-highlight-enable t
-                      tree-sitter-fold-enable nil                          ;; NOTE: t will suffering auto-completion
-                      syntax-checking-enable-tooltips t
-                      syntax-checking-indication-symbol 'standard-value)
+                      tree-sitter-fold-enable nil ;; NOTE: t will suffering auto-completion
+                      syntax-checking-enable-tooltips t)
 
      ;; Add tabs at the top of buffer
      (tabs :variables

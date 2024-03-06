@@ -18,6 +18,18 @@
 ;; ---------------------------------------
 
 ;; ---------------------------------------
+;; Clipping setup
+;; ---------------------------------------
+(fset 'evil-visual-update-x-selection 'ignore)
+(defun evil-paste-after-from-0 ()
+  (interactive)
+  (let ((evil-this-register ?0))
+    (call-interactively 'evil-paste-after)))
+
+(define-key evil-visual-state-map "p" 'evil-paste-after-from-0)
+;; ---------------------------------------
+
+;; ---------------------------------------
 ;; Line numbers
 ;; native line numbers taking up lots of space?
 (setq-default display-line-numbers-width nil)
@@ -39,7 +51,10 @@
 
 ;FIXME: doesnt work keymap. emacs used default
 (with-eval-after-load 'lsp-ui
-  (global-set-key (kbd "K") #'etlk/lsp-ui-doc-handle))
+  (define-key evil-normal-state-map (kbd "K") 'etlk/lsp-ui-doc-handle))
+
+(spacemacs/set-leader-keys
+  "mrf"   '("Rename File" . lsp-javascript-rename-file)) ;; rename any part of file path with all imports update
 
 ;; hack to make typing snappier in typescript
 (defun etlk/typescript-mode-make-snappier-input ()
@@ -89,7 +104,7 @@
 (add-hook 'telega-load-hook 'telega-notifications-mode)
 (telega-notifications-mode 1)
 ;; Autocompletion for the chat
-;; (add-hook 'telega-chat-mode-hook 'company-mode)
+(add-hook 'telega-chat-mode-hook 'company-mode)
 
 (require 'telega-url-shorten)
 (global-telega-url-shorten-mode 1)
@@ -118,12 +133,23 @@
 ;; ---------------------------------------
 ;; Ivy extensions
 ;; ---------------------------------------
+;; TODO: add default view of frame-center and exclude buffer search and symbol search
 (with-eval-after-load 'ivy
   (setq ivy-posframe-display-functions-alist
-        '((counsel-M-x     . ivy-posframe-display-at-frame-center)
-          (xref            . ivy-posframe-display-at-frame-top-center)))
-  (setq ivy-posframe-parameters '((left-fringe . 8)
+        '(
+          (t                                   . ivy-posframe-display-at-frame-center)
+          (counsel-M-x                         . ivy-posframe-display-at-frame-center)
+          (counsel-find-file                   . ivy-posframe-display-at-frame-center)
+          (counsel-projectile-switch-to-buffer . ivy-posframe-display-at-frame-center)
+          (counsel-projectile-find-file        . ivy-posframe-display-at-frame-center)
+          (counsel-projectile-find-dir         . ivy-posframe-display-at-frame-center)
+          (counsel-projectile-switch-project   . ivy-posframe-display-at-frame-center)
+          (counsel-imenu                       . ivy-display-function-fallback)
+          (swiper                              . ivy-display-function-fallback)))
+
+  (setq ivy-posframe-parameters '((left-fringe  . 8)
                                   (right-fringe . 8)))
+
   (ivy-posframe-mode 1))
 ;; ---------------------------------------
 
@@ -142,12 +168,25 @@
 (add-hook 'ediff-prepare-buffer-hook #'solaire-mode)
 ;; ---------------------------------------
 
+;; ---------------------------------------
+;; ORG
+;; ---------------------------------------
+(with-eval-after-load 'org-agenda
+  (require 'org-projectile)
+  (mapcar '(lambda (file)
+             (when (file-exists-p file)
+               (push file org-agenda-files)))
+          (org-projectile-todo-files)))
+;; ---------------------------------------
+
+
 ;; add https://github.com/lorniu/go-translate
 ;; ---------------------------------------
 ;; Searching
 (evil-global-set-key 'normal "/" (alist-get :buffer-search-tool config))
-;; ---------------------------------------
+(global-set-key "\C-cr" 'revert-buffer)
 
+;; ---------------------------------------
 
 ;; ---------------------------------------
 ;; Git
