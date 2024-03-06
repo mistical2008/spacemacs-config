@@ -45,11 +45,14 @@
   "Wrapper function which shows symbol `lsp-ui-doc` popup if not showed.
   If doc popup is showed, then focus doc"
   (interactive)
-  (cond
-   ((lsp-ui-doc--frame-visible-p) (lsp-ui-doc-focus-frame))
-   ((not (lsp-ui-doc--frame-visible-p)) (lsp-ui-doc-show))))
+  (if (and (bound-and-true-p lsp-mode) (bound-and-true-p lsp-ui-mode))
+      (cond
+       ((lsp-ui-doc--frame-visible-p) (lsp-ui-doc-focus-frame))
+       ((not (lsp-ui-doc--frame-visible-p)) (lsp-ui-doc-show)))
+    (call-interactively #'spacemacs/evil-smart-doc-lookup)))
 
-;FIXME: doesnt work keymap. emacs used default
+
+
 (with-eval-after-load 'lsp-ui
   (define-key evil-normal-state-map (kbd "K") 'etlk/lsp-ui-doc-handle))
 
