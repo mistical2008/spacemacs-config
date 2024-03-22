@@ -62,14 +62,31 @@
 
 (with-eval-after-load 'org
   (setq
-   org-tag-alist '(("@career"        . ?c)
+   org-tag-alist '(
+                   ;; Life area types
+                   ("@career"        . ?c)
                    ("@finance"       . ?m)
                    ("@health"        . ?h)
                    ("@sport"         . ?s)
                    ("@entertainment" . ?e)
                    ("@family"        . ?f)
                    ("@work"          . ?w)
-                   ("@personal"      . ?p))
+                   ("@personal"      . ?p)
+
+                   ;; Time-specific task types
+                   (:startgroup . nil)
+                   ("NOW"       . ?n)
+                   ("TODAY"     . ?t)
+                   ("LATER"     . ?l)
+                   ("ANYTIME"   . ?a)
+                   (:endgroup   . nil))
+
+    org-tag-faces
+         '(
+           ("NOW"     . (:foreground "SpringGreen" :weight bold))
+           ("TODAY"   . (:foreground "MediumAquamarine" :weight bold))
+           ("LATER"   . (:foreground "Olive" :weight bold))
+           ("ANYTIME" . (:foreground "DarkGray")))
 
    org-roam-directory (etlk/get-org-dir)
 
@@ -166,28 +183,23 @@
                            :order 1)))))
      (todo "" (
                (org-agenda-overriding-header "TODOs")
+               (org-agenda-remove-tags t)
                (org-agenda-prefix-format "  %t  %s")
                (org-super-agenda-groups
                 '(
-                  ;; (:auto-group t)
-                  (:auto-outline-path t :auto-parent t)
-                  (:name "Crytical"
-                         :priority "A"
+                  ;; (:auto-parent t)
+                  (:name "Now"
+                         :tag "NOW"
+                         :face (:foreground "SpringGreen")
                          :order 0)
-                  ;; (:name "Today (Important)"
-                  ;;        ;; :heading-regexp "Today"
-                  ;;        :and (
-                  ;;              :heading-regexp ("/Today/")
-                  ;;              :priority "A"
-                  ;;              :not (:todo "DONE"))
-                  ;;        :order 2)
-                  ;; (:name "Today"
-                  ;;        ;; :auto-todo t
-                  ;;        ;; :auto-parent t
-                  ;;        :and (
-                  ;;              :heading-regexp ("Today")
-                  ;;              :not (:todo "DONE" :priority "A"))
-                  ;;        :order 3)
+                  (:name "Today"
+                         :tag "TODAY"
+                         :face (:foreground "MediumAquamarine")
+                         :order 1)
+                  (:name "Later (next week)"
+                         :tag "LATER"
+                         :face (:foreground "Olive")
+                         :order 2)
                   (:name "Habits"
                          :habit t
                          :order 4)
