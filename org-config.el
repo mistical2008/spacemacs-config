@@ -150,6 +150,10 @@
 
 
 
+;; NOTE:
+;; Use specific tags for the task scope from the Dzhedayskie techniki
+;; ex. $now $today $later $anytime
+;; use first level heading for projects to simplifying org-super-agenda view setup
 (setq org-agenda-custom-commands
  '(("u" "Super view"
     ((agenda "" (
