@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+#name : property-created
+#key : <pcr
+#contributor : etalko
+# --
+:Created: <`(format-time-string "%Y-%m-%d %H:%M")`>$0

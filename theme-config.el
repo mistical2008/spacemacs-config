@@ -16,7 +16,7 @@
 ;;
 (with-eval-after-load 'doom-modeline
   (doom-modeline-def-modeline 'practicalli-modeline
-    '(workspace-name window-number persp-name buffer-info matches remote-host vcs)
+    '(workspace-name window-number buffer-info matches remote-host vcs)
     '(misc-info repl lsp buffer-position))
   (practicalli/setup-custom-doom-modeline))
 

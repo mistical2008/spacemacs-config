@@ -51,11 +51,11 @@ This function should only modify configuration layer settings."
      (auto-completion :variables
                       company-tooltip-align-annotations t
                       auto-completion-enable-help-tooltip 'manual
-                      auto-completion-enable-snippets-in-popup nil
+                      auto-completion-enable-snippets-in-popup t
                       auto-completion-enable-sort-by-usage nil
                       auto-completion-idle-delay 0.0
-                      auto-completion-minimum-prefix-length 1)
-                      ;; auto-completion-complete-with-key-sequence "fd"
+                      auto-completion-minimum-prefix-length 1
+                      auto-completion-complete-with-key-sequence "fd")
 
 
      ;; Git
@@ -180,7 +180,7 @@ This function should only modify configuration layer settings."
 
      ;; Spacemacs Org mode
      (org :variables
-          org-enable-modern-support t
+          org-enable-modern-support nil
           org-enable-appear-support t
           org-appear-trigger 'manual
           org-enable-epub-support t
@@ -188,12 +188,12 @@ This function should only modify configuration layer settings."
           org-enable-roam-support t
           org-enable-roam-ui t
           org-enable-github-support t
-          org-todo-keyword-faces '(("TODO"     . "SlateGray")
-                                   ("DOING"    . "DarkOrchid")
-                                   ("BLOCKED"  . "Firebrick")
-                                   ("REVIEW"   . "Teal")
-                                   ("DONE"     . "ForestGreen")
-                                   ("ARCHIVED" . "SlateBlue"))
+          ;; org-todo-keyword-faces '(("TODO"     . "SlateGray")
+          ;;                          ("DOING"    . "DarkOrchid")
+          ;;                          ("BLOCKED"  . "Firebrick")
+          ;;                          ("REVIEW"   . "Teal")
+          ;;                          ("DONE"     . "ForestGreen")
+          ;;                          ("ARCHIVED" . "SlateBlue"))
           org-support-shift-select t
           org-enable-bootstrap-support t
           org-enable-reveal-js-support t
@@ -221,6 +221,7 @@ This function should only modify configuration layer settings."
              ranger-cleanup-on-disable t
              ranger-ignored-extensions '("mkv" "flv" "iso" "mp4"))
 
+     sql
      ;; SPC ' runs shell in a popup buffer
      (shell :variables
             shell-default-shell 'vterm
@@ -255,7 +256,8 @@ This function should only modify configuration layer settings."
      ;; Spell as you type with Flyspell package,
      ;; requires external command - ispell, hunspell, aspell
      ;; SPC S menu, SPC S s to check current word
-     spell-checking
+     (spell-checking :variables
+                     spell-checking-enable-by-default nil)
 
      ;; Use original flycheck fringe bitmaps
      (syntax-checking :variables
@@ -264,22 +266,23 @@ This function should only modify configuration layer settings."
                       syntax-checking-enable-tooltips t)
 
      ;; Add tabs at the top of buffer
-     (tabs :variables
-           tabs-auto-hide t
-           tabs-auto-hide-delay 3.0)
+     ;; (tabs :variables
+     ;;       tabs-auto-hide t
+     ;;       tabs-auto-hide-delay 3.0)
 
      (typescript :variables
                  lsp-clients-typescript-tls-path "vtsls"
                  typescript-linter 'eslint
                  typescript-fmt-tool 'prettier
-                 typescript-backend 'lsp)
-     ;; typescript-fmt-on-save t)
+                 typescript-backend 'lsp
+                 typescript-fmt-on-save t)
 
      ;; Visual file manager - `SPC p t'
      ;; treemacs-no-png-images t removes file and directory icons
      (treemacs :variables
                treemacs-indentation 1
                treemacs-use-all-the-icons-theme t
+               treemacs-use-git-mode 'deferred
                treemacs-use-filewatch-mode t
                treemacs-use-follow-mode t)
 
@@ -327,6 +330,11 @@ This function should only modify configuration layer settings."
                                       ivy-posframe
                                       solaire-mode
                                       add-node-modules-path
+                                      org-super-agenda
+                                      (codeium
+                                       :location
+                                       (recipe :fetcher github
+                                               :repo "Exafunction/codeium.el"))
                                       ;; emacs-lsp-booster
                                       (evil-surround
                                        :location
@@ -338,7 +346,7 @@ This function should only modify configuration layer settings."
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(exec-path-from-shell)
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -471,7 +479,6 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-startup-lists '((agenda . 3)
                                 (todos . 3)
                                 (recents-by-project . (5 . 5)))
-                                ;; (telega-chats . 5))
 
 
    ;; True if the home buffer should resspotify-pond to resize events. (default t)
@@ -884,3 +891,15 @@ before packages are loaded."
 ;; NOTE: `custom-set-variables` are now written to a separate file in the Spacemacs configuration location:
 ;; Uncomment and evaluate, `, e e', the expression below to check your location
 ;; (concat dotspacemacs-directory "emacs-custom-settings.el")
+;; (defun dotspacemacs/emacs-custom-settings ()
+;;   "Emacs custom settings.
+;; This is an auto-generated function, do not modify its content directly, use
+;; Emacs customize menu instead.
+;; This function is called at the very end of Spacemacs initialization."
+;;  (custom-set-variables
+;;   ;; custom-set-variables was added by Custom.
+;;   ;; If you edit it by hand, you could mess it up, so be careful.
+;;   ;; Your init file should contain only one such instance.
+;;   ;; If there is more than one, they won't work right.
+;;   '(org-agenda-files '("~/03_Drafts/org/01_todo.org")))
+;;  (custom-set-faces))

@@ -11,9 +11,18 @@
 (setq config '(
                (:buffer-search-tool . swiper)))
 
+
+;; ---------------------------------------
+;; Tabs
+;; ---------------------------------------
+(with-eval-after-load 'centaur-tabs
+  (setq centaur-tabs-set-bar 'right))
+;; ---------------------------------------
+
 ;; ---------------------------------------
 ;; Text setup
 ;; ---------------------------------------
+(global-prettify-symbols-mode 1)
 (setq-default line-spacing 0.25)
 ;; ---------------------------------------
 
@@ -48,15 +57,16 @@
   (if (and (bound-and-true-p lsp-mode) (bound-and-true-p lsp-ui-mode))
       (cond
        ((lsp-ui-doc--frame-visible-p) (lsp-ui-doc-focus-frame))
-       ((not (lsp-ui-doc--frame-visible-p)) (lsp-ui-doc-show)))
+       ((not (lsp-ui-doc--frame-visible-p)) (lsp-ui-doc-glance)))
     (call-interactively #'spacemacs/evil-smart-doc-lookup)))
 
 
 
-(with-eval-after-load 'lsp-ui
-  (define-key evil-normal-state-map (kbd "K") 'etlk/lsp-ui-doc-handle))
+;; (with-eval-after-load 'lsp-ui
+;;   (define-key evil-normal-state-map (kbd "K") 'etlk/lsp-ui-doc-handle))
 
 (spacemacs/set-leader-keys
+  ",rf"   '("Rename File" . lsp-javascript-rename-file)
   "mrf"   '("Rename File" . lsp-javascript-rename-file)) ;; rename any part of file path with all imports update
 
 ;; hack to make typing snappier in typescript
@@ -89,7 +99,11 @@
 
 ;; ---------------------------------------
 ;; Telegram chat
-(setq-default telega-use-docker t)
+(setq telega-use-docker t)
+(setq telega-directory (concat (getenv "XDG_CONFIG_HOME") "/telega"))
+(setq telega-use-images t)
+(setq telega-emoji-use-images t)
+(setq telega-emoji-font-family "Apple Color Emoji")
 
 (let ((telega-dir (file-name-directory (locate-library "telega"))))
   (push
@@ -111,9 +125,20 @@
 
 (require 'telega-url-shorten)
 (global-telega-url-shorten-mode 1)
-;; Dashboard
+
 ;; (require 'telega-dashboard)
+;; (require 'dashboard)
 ;; (add-to-list 'dashboard-items '(telega-chats . 5))
+
+(require 'telega)
+
+(defun etlk/telega-safe-start ()
+  "Start Telega in the background if no one launched"
+  (interactive)
+  (unless (get-buffer "*Telega Root*")
+    (telega)))
+
+(add-hook 'emacs-startup-hook #'etlk/telega-safe-start)
 ;; ---------------------------------------
 
 ;; ---------------------------------------
@@ -187,21 +212,39 @@
 ;; ---------------------------------------
 ;; Searching
 (evil-global-set-key 'normal "/" (alist-get :buffer-search-tool config))
-(global-set-key "\C-cr" 'revert-buffer)
+(global-set-key (kbd "C-c r" ) 'revert-buffer)
 
 ;; ---------------------------------------
 
 ;; ---------------------------------------
 ;; Git
 ;; ---------------------------------------
+(spacemacs/declare-prefix "act" "Telegram")
+(spacemacs/declare-prefix "actv" "View")
+(spacemacs/set-leader-keys
+  "actr"   '("Launch telega"  . etlk/telega-safe-start)
+  "actb"   '("Switch to chat" . telega-switch-buffer)
+  "actvd"   '("Default"       . telega-view-default)
+  "actvc"   '("Compact"       . telega-view-compact)
+  "actvv"   '("Video chats"   . telega-view-video-chats)
+  "actvl"   '("Last messages" . telega-view-last-messages)
+  "actk" '("Kill telega"      . telega-kill))
+
 (spacemacs/declare-prefix "gw" "Worktrees")
 (spacemacs/set-leader-keys
-  "gw."   '("Menu" . magit-worktree)
+  "gw."   '("Menu"             . magit-worktree)
   "gwb" '("Create with branch" . magit-worktree-branch)
-  "gwm" '("Move" . magit-worktree-move)
-  "gwd" '("Delete" . magit-worktree-delete)
-  "gwc" '("Checkout" . magit-worktree-checkout))
+  "gwm" '("Move"               . magit-worktree-move)
+  "gwd" '("Delete"             . magit-worktree-delete)
+  "gwc" '("Checkout"           . magit-worktree-checkout))
 
+(spacemacs/declare-prefix "px" "Remove project")
+(spacemacs/set-leader-keys
+  "pxc"   '("Current project" . projectile-remove-current-project-from-known-projects)
+  "pxs"   '("Select project"  . projectile-remove-known-project))
+
+(spacemacs/set-leader-keys
+  "p+" '("Add known project" . projectile-add-known-project))
 ;; ---------------------------------------
 ;; Helm Descbinds
 ;; Recent release of helm-descbinds package breaks which-key menu
